@@ -40,10 +40,11 @@ namespace AElf.Network.Peers
         private readonly TimeSpan _initialMaintenanceDelay = TimeSpan.FromSeconds(5);
         private readonly TimeSpan _maintenancePeriod = TimeSpan.FromMinutes(1);
 
-        public PeerManager(IAElfServer server, IAElfNetworkConfig config, 
+        public PeerManager(IAElfServer server, IPeerDatabase peerDatabase, IAElfNetworkConfig config, 
             INodeDialer nodeDialer, ILogger logger)
         {
             _nodeDialer = nodeDialer;
+            _peerDatabase = peerDatabase;
             _networkConfig = config;
             _logger = logger;
             _server = server;
@@ -65,11 +66,6 @@ namespace AElf.Network.Peers
                         node.IsBootnode = true;
                         _bootnodes.Add(node);
                     }
-                }
-
-                if (_networkConfig.PeersDbPath != null)
-                {
-                    _peerDatabase = new PeerDataStore(_networkConfig.PeersDbPath);
                 }
             }
         }
