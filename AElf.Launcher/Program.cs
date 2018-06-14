@@ -37,14 +37,13 @@ namespace AElf.Launcher
             
             var txPoolConf = confParser.TxPoolConfig;
             var netConf = confParser.NetConfig;
-            var databaseConf = confParser.DatabaseConfig;
             var minerConfig = confParser.MinerConfig;
             var nodeConfig = confParser.NodeConfig;
             var isMiner = confParser.IsMiner;
             var isNewChain = confParser.NewChain;
             
             // Setup ioc 
-            IContainer container = SetupIocContainer(isMiner, isNewChain, netConf, databaseConf, txPoolConf, minerConfig, nodeConfig);
+            IContainer container = SetupIocContainer(isMiner, isNewChain, netConf, txPoolConf, minerConfig, nodeConfig);
 
             if (container == null)
             {
@@ -88,7 +87,7 @@ namespace AElf.Launcher
             }
         }
 
-        private static IContainer SetupIocContainer(bool isMiner, bool isNewChain, IAElfNetworkConfig netConf, IDatabaseConfig databaseConf, ITxPoolConfig txPoolConf, IMinerConfig minerConf, INodeConfig nodeConfig)
+        private static IContainer SetupIocContainer(bool isMiner, bool isNewChain, IAElfNetworkConfig netConf, ITxPoolConfig txPoolConf, IMinerConfig minerConf, INodeConfig nodeConfig)
         {
             var builder = new ContainerBuilder();
             
@@ -99,7 +98,7 @@ namespace AElf.Launcher
             
             builder.RegisterModule(new TransactionManagerModule());
             builder.RegisterModule(new LoggerModule());
-            builder.RegisterModule(new DatabaseModule(databaseConf));
+            builder.RegisterModule(new DatabaseModule());
             builder.RegisterModule(new NetworkModule(netConf));
             builder.RegisterModule(new RpcServerModule());
 

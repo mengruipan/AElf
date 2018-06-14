@@ -19,7 +19,7 @@ namespace AElf.Runtime.CSharp.Tests
         protected override void ConfigureContainer(ContainerBuilder builder)
         {
             builder.RegisterModule(new MainModule());
-            builder.RegisterModule(new DatabaseModule(new DatabaseConfig()));
+            builder.RegisterModule(new DatabaseModule());
 
             // configure your container
             // e.g. builder.RegisterModule<TestOverrideModule>();

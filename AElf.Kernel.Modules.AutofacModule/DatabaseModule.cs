@@ -6,23 +6,16 @@ namespace AElf.Kernel.Modules.AutofacModule
 {
     public class DatabaseModule : Module
     {
-        private readonly IDatabaseConfig _config;
-
-        public DatabaseModule(IDatabaseConfig config)
-        {
-            _config = config;
-        }
-
         protected override void Load(ContainerBuilder builder)
         {
-            switch (_config.Type)
+            switch (DatabaseConfig.Instance.Type)
             {
                 case DatabaseType.KeyValue:
                     builder.RegisterType<KeyValueDatabase>().As<IKeyValueDatabase>().SingleInstance();
                     break;
                 case DatabaseType.Ssdb:
 #if DEBUG
-                    if (!new SsdbDatabase(_config).IsConnected())
+                    if (!new SsdbDatabase().IsConnected())
                     {
                         builder.RegisterType<KeyValueDatabase>().As<IKeyValueDatabase>().SingleInstance();
                         break;

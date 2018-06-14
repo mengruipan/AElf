@@ -19,7 +19,6 @@ namespace AElf.Launcher
     {
         public IAElfNetworkConfig NetConfig { get; private set; }
         public ITxPoolConfig TxPoolConfig { get; private set; }
-        public IDatabaseConfig DatabaseConfig { get; private set; }
         public IMinerConfig MinerConfig { get; private set; }
         public INodeConfig NodeConfig { get; private set; }
 
@@ -108,22 +107,17 @@ namespace AElf.Launcher
             
             
             // Database
-            var databaseConfig = new DatabaseConfig();
-            
-            databaseConfig.Type = DatabaseTypeHelper.GetType(opts.DBType);
+            DatabaseConfig.Instance.Type = DatabaseTypeHelper.GetType(opts.DBType);
             
             if (!string.IsNullOrWhiteSpace(opts.DBHost))
             {
-                databaseConfig.Host = opts.DBHost;
+                DatabaseConfig.Instance.Host = opts.DBHost;
             }
             
             if (opts.DBPort.HasValue)
             {
-                databaseConfig.Port = opts.DBPort.Value;
+                DatabaseConfig.Instance.Port = opts.DBPort.Value;
             }
-
-            DatabaseConfig = databaseConfig;
-           
             
             // to be miner
             IsMiner = opts.IsMiner;
