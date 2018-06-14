@@ -1,4 +1,6 @@
-﻿using System;
+﻿﻿using System;
+using AElf.Configuration;
+using AElf.Database.Config;
 using Xunit;
 
 namespace AElf.Database.Tests
