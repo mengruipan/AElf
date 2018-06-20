@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AElf.Kernel.Concurrency.Execution.Config;
 using Akka.Actor;
 using AElf.Kernel.Services;
 using AElf.Kernel.Concurrency.Execution.Messages;
+using Akka.Routing;
 
 namespace AElf.Kernel.Concurrency.Execution
 {
@@ -28,7 +30,14 @@ namespace AElf.Kernel.Concurrency.Execution
 
         public static Props Props(ServicePack servicePack)
         {
-            return Akka.Actor.Props.Create(() => new LocalServicesProvider(servicePack));
+            if (AkkaConfig.Instance.IsCluster)
+            {
+                return Akka.Actor.Props.Create(() => new LocalServicesProvider(servicePack)).WithRouter(FromConfig.Instance);
+            }
+            else
+            {
+                return Akka.Actor.Props.Create(() => new LocalServicesProvider(servicePack));
+            }
         }
     }
 }

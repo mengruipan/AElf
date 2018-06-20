@@ -1,11 +1,14 @@
 ﻿using System;
 using AElf.Database;
+using AElf.Kernel.Concurrency.Execution.Config;
 using AElf.Kernel.Miner;
 using AElf.Kernel.Modules.AutofacModule;
 using AElf.Kernel.Node.Config;
 using AElf.Kernel.TxMemPool;
 using AElf.Launcher;
 using AElf.Network.Config;
+using Akka.Actor;
+using Akka.Configuration;
 using Autofac;
 
 namespace AElf.Concurrency.Launcher
@@ -43,7 +46,7 @@ namespace AElf.Concurrency.Launcher
             
             using(var scope = container.BeginLifetimeScope())
             {
-
+                InitActor();
                 Console.ReadLine();
             }
         }
@@ -85,7 +88,11 @@ namespace AElf.Concurrency.Launcher
 
         private static void InitActor()
         {
-            
+            var config =
+                ConfigurationFactory.ParseString("akka.remote.dot-netty.tcp.port=" + 2551)
+                    //.WithFallback(ConfigurationFactory.ParseString("akka.cluster.seed-nodes = [\"akka.tcp://ClusterSystem@127.0.0.1:"+ ports[0]+"\"]"))
+                    .WithFallback(AkkaConfig.Instance.Content);
+            ActorSystem.Create("ClusterSystem",config);
         }
     }
 }

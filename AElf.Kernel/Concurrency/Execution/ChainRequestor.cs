@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Kernel.Concurrency.Execution.Config;
 using Akka.Actor;
 using AElf.Kernel.Concurrency.Execution.Messages;
 using AElf.Kernel.Extensions;
@@ -53,7 +54,14 @@ namespace AElf.Kernel.Concurrency.Execution
 
 		public static Props Props(ActorSystem system, Hash chainId)
 		{
-			return Akka.Actor.Props.Create(() => new ChainRequestor(system, chainId));
+			if (AkkaConfig.Instance.IsCluster)
+			{
+				return Akka.Actor.Props.Create(() => new ChainRequestor(system, chainId)).WithRouter(Context.Props.RouterConfig);
+			}
+			else
+			{
+				return Akka.Actor.Props.Create(() => new ChainRequestor(system, chainId));
+			}
 		}
 
 	}

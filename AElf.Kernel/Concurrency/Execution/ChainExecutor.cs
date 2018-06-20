@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AElf.Kernel.Concurrency.Execution.Config;
 using Akka.Actor;
 using AElf.Kernel.Services;
 using AElf.Kernel.Concurrency.Execution.Messages;
@@ -86,7 +87,14 @@ namespace AElf.Kernel.Concurrency.Execution
 
         public static Props Props(Hash chainId, IActorRef serviceRouter)
         {
-            return Akka.Actor.Props.Create(() => new ChainExecutor(chainId, serviceRouter));
+            if (AkkaConfig.Instance.IsCluster)
+            {
+                return Akka.Actor.Props.Create(() => new ChainExecutor(chainId, serviceRouter)).WithRouter(Context.Props.RouterConfig);
+            }
+            else
+            {
+                return Akka.Actor.Props.Create(() => new ChainExecutor(chainId, serviceRouter));
+            }
         }
 
     }

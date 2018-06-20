@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using AElf.Kernel.Concurrency.Execution.Config;
 using Akka.Actor;
 using AElf.Kernel.Extensions;
 using AElf.Kernel.Services;
 using AElf.Kernel.Concurrency.Execution.Messages;
+using Akka.Routing;
 using Google.Protobuf;
 
 namespace AElf.Kernel.Concurrency.Execution
@@ -59,7 +61,14 @@ namespace AElf.Kernel.Concurrency.Execution
 
         public static Props Props(ActorSystem system, IActorRef serviceRouter)
         {
-            return Akka.Actor.Props.Create(() => new GeneralExecutor(system, serviceRouter));
+            if (AkkaConfig.Instance.IsCluster)
+            {
+                return Akka.Actor.Props.Create(() => new GeneralExecutor(system, serviceRouter)).WithRouter(FromConfig.Instance);
+            }
+            else
+            {
+                return Akka.Actor.Props.Create(() => new GeneralExecutor(system, serviceRouter));
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AElf.Kernel.Concurrency.Execution.Config;
 using AElf.Kernel.Concurrency.Scheduling;
 using AElf.Kernel.Concurrency.Execution.Messages;
 using Akka.Actor;
@@ -112,7 +113,14 @@ namespace AElf.Kernel.Concurrency.Execution
 
         public static Props Props(Hash chainId, IActorRef serviceRouter, List<ITransaction> transactions, IActorRef resultCollector)
         {
-            return Akka.Actor.Props.Create(() => new GroupExecutor(chainId, serviceRouter, transactions, resultCollector));
+            if (AkkaConfig.Instance.IsCluster)
+            {
+                return Akka.Actor.Props.Create(() => new GroupExecutor(chainId, serviceRouter, transactions, resultCollector)).WithRouter(Context.Props.RouterConfig);
+            }
+            else
+            {
+                return Akka.Actor.Props.Create(() => new GroupExecutor(chainId, serviceRouter, transactions, resultCollector));
+            }
         }
 
     }

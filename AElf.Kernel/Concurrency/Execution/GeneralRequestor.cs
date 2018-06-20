@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using AElf.Kernel.Concurrency.Execution.Config;
 using Akka.Actor;
 using AElf.Kernel.Concurrency.Execution.Messages;
 using AElf.Kernel.Extensions;
+using Akka.Routing;
 using Google.Protobuf;
 namespace AElf.Kernel.Concurrency.Execution
 {
@@ -44,7 +46,14 @@ namespace AElf.Kernel.Concurrency.Execution
 
         public static Props Props(ActorSystem system)
         {
-			return Akka.Actor.Props.Create(() => new GeneralRequestor(system));
+	        if (AkkaConfig.Instance.IsCluster)
+	        {
+		        return Akka.Actor.Props.Create(() => new GeneralRequestor(system)).WithRouter(FromConfig.Instance);
+	        }
+	        else
+	        {
+		        return Akka.Actor.Props.Create(() => new GeneralRequestor(system));
+	        }
         }
 	}
 }
