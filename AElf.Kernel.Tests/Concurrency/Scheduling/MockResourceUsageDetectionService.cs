@@ -8,7 +8,7 @@ namespace AElf.Kernel.Tests.Concurrency.Scheduling
         public IEnumerable<Hash> GetResources(ITransaction transaction)
         {
             return new List<Hash>(){
-                transaction.From, transaction.To
+                transaction.From
             };
         }
     }
