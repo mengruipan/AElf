@@ -9,6 +9,7 @@ using AElf.Kernel.BlockValidationFilters;
 using AElf.Kernel.Concurrency;
 using AElf.Kernel.Concurrency.Execution;
 using AElf.Kernel.Concurrency.Execution.Messages;
+using AElf.Kernel.Concurrency.Metadata;
 using AElf.Kernel.Concurrency.Scheduling;
 using AElf.Kernel.Consensus;
 using AElf.Kernel.Managers;
@@ -52,6 +53,7 @@ namespace AElf.Kernel.Node
         private readonly IWorldStateDictator _worldStateDictator;
         private readonly ISmartContractService _smartContractService;
         private readonly ITransactionResultService _transactionResultService;
+        private readonly IFunctionMetadataService _functionMetadataService;
 
         private readonly IBlockExecutor _blockExecutor;
 
@@ -87,7 +89,7 @@ namespace AElf.Kernel.Node
             IChainContextService chainContextService, IBlockExecutor blockExecutor,
             IChainCreationService chainCreationService, IWorldStateDictator worldStateDictator, 
             IChainManager chainManager, ISmartContractService smartContractService,
-            ITransactionResultService transactionResultService, IBlockManager blockManager)
+            ITransactionResultService transactionResultService, IBlockManager blockManager, IFunctionMetadataService functionMetadataService)
         {
             _chainCreationService = chainCreationService;
             _chainManager = chainManager;
@@ -95,6 +97,7 @@ namespace AElf.Kernel.Node
             _smartContractService = smartContractService;
             _transactionResultService = transactionResultService;
             _blockManager = blockManager;
+            _functionMetadataService = functionMetadataService;
             _poolService = poolService;
             _protocolDirector = protocolDirector;
             _transactionManager = txManager;
@@ -194,20 +197,24 @@ namespace AElf.Kernel.Node
             
             
             var sys = ActorSystem.Create("AElf");
-            var workers = new[] {"/user/worker1", "/user/worker2"};
+            var workers = new[] {"/user/worker1", "/user/worker2", "/user/worker3", "/user/worker4"};
             IActorRef worker1 = sys.ActorOf(Props.Create<Worker>(), "worker1");
             IActorRef worker2 = sys.ActorOf(Props.Create<Worker>(), "worker2");
+            IActorRef worker3 = sys.ActorOf(Props.Create<Worker>(), "worker3");
+            IActorRef worker4 = sys.ActorOf(Props.Create<Worker>(), "worker4");
             IActorRef router = sys.ActorOf(Props.Empty.WithRouter(new TrackedGroup(workers)), "router");
 
             var servicePack = new ServicePack
             {
                 ChainContextService = _chainContextService,
                 SmartContractService = _smartContractService,
-                ResourceDetectionService = new MockResourceUsageDetectionService(),
+                ResourceDetectionService = new ResourceUsageDetectionService(_functionMetadataService),
                 WorldStateDictator = _worldStateDictator
             };
             worker1.Tell(new LocalSerivcePack(servicePack));
             worker2.Tell(new LocalSerivcePack(servicePack));
+            worker3.Tell(new LocalSerivcePack(servicePack));
+            worker4.Tell(new LocalSerivcePack(servicePack));
             IActorRef requestor = sys.ActorOf(AElf.Kernel.Concurrency.Execution.Requestor.Props(router));
        
             
