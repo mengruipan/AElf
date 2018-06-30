@@ -94,7 +94,7 @@ namespace AElf.Benchmark
 
             //TODO: set timeout to int.max in order to run the large trunk of tx list
             
-            _dataGenerater = new TransactionDataGenerator(options.TxNumber);
+            _dataGenerater = new TransactionDataGenerator(options.TxNumber, options.GroupRange.ElementAt(1));
             byte[] code = null;
             using (FileStream file = File.OpenRead(System.IO.Path.GetFullPath(options.DllDir + "/" + options.ContractDll)))
             {
@@ -102,16 +102,13 @@ namespace AElf.Benchmark
             }
             _contractHash = Prepare(code).Result;
             
-            InitContract(_contractHash, _dataGenerater.KeyDict.Keys).GetResult();
-            
+            InitContract(_contractHash, _dataGenerater.AllHashs).GetResult();
         }
-
-        
 
         public async Task BenchmarkEvenGroup()
         {
             var resDict = new Dictionary<string, double>();
-            for (int currentGroupCount = _options.GroupRange.ElementAt(0); currentGroupCount <= _options.GroupRange.ElementAt(1); currentGroupCount++)
+            for (int currentGroupCount = _options.GroupRange.ElementAt(0); currentGroupCount <= _options.GroupRange.ElementAt(1); currentGroupCount+=_options.SkipInterval)
             {
                 var res = await MultipleGroupBenchmark(_options.TxNumber, currentGroupCount);
                 resDict.Add(res.Key, res.Value);
@@ -131,6 +128,7 @@ namespace AElf.Benchmark
         
             var txList = _dataGenerater.GetMultipleGroupTx(txNumber, groupCount, _contractHash);
             long timeused = 0;
+            int executedTxCount = 0; //in case there is a bug, we use this to check the executed tx count
             for (int i = 0; i < repeatTime; i++)
             {
                 foreach (var tx in txList)
@@ -154,10 +152,11 @@ namespace AElf.Benchmark
                         _logger.Error("Execution error: " + trace.StdErr);
                     }
                 });
+                executedTxCount += txResult.Count;
             }
             
             var time = txNumber / (timeused / 1000.0 / (double)repeatTime);
-            var str = groupCount + " groups with " + txList.Count + " tx in total";
+            var str = groupCount + " groups with " + (double)executedTxCount / (double)repeatTime + " tx in total, total executed transactions " + executedTxCount;
 
             return new KeyValuePair<string,double>(str, time);
         }

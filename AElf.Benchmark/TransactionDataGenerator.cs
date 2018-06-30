@@ -13,11 +13,14 @@ namespace AElf.Benchmark
     {
         private int _totalNumber;
         public Dictionary<Hash, ECKeyPair> KeyDict;
+        public Dictionary<Hash, ECKeyPair> Target;
+        public List<Hash> AllHashs { get; }
 
-        public TransactionDataGenerator(int maxNumber)
+        public TransactionDataGenerator(int maxNumber, int maxGroup)
         {
             _totalNumber = maxNumber;
             KeyDict = new Dictionary<Hash, ECKeyPair>();
+            Target = new Dictionary<Hash, ECKeyPair>();
             for (int i = 0; i < maxNumber + 90; i++)
             {
                 if (maxNumber > 100 && i % (maxNumber / 10) == 0)
@@ -28,15 +31,26 @@ namespace AElf.Benchmark
                 var kpair = keyPairGenerator.Generate();
                 KeyDict.Add(new Hash(kpair.GetAddress()), kpair);
             }
+
+            for (int i = 0; i < maxGroup + 2; i++)
+            {
+                var keyPairGenerator = new KeyPairGenerator();
+                var kpair = keyPairGenerator.Generate();
+                Target.Add(new Hash(kpair.GetAddress()), kpair);
+            }
+            
+            AllHashs = new List<Hash>();
+            AllHashs.AddRange(KeyDict.Keys);
+            AllHashs.AddRange(Target.Keys);
         }
 
-        private IEnumerable<KeyValuePair<Hash, Hash>> GenerateTransferAddressPair(int txCount, double conflictRate, ref Iterator<KeyValuePair<Hash, ECKeyPair>> keyDictIter)
+        private IEnumerable<KeyValuePair<Hash, Hash>> GenerateTransferAddressPair(int txCount, double conflictRate, ref Iterator<KeyValuePair<Hash, ECKeyPair>> keyDictIter, ref Iterator<KeyValuePair<Hash, ECKeyPair>> conflictKeyIter)
         {
             if (txCount > _totalNumber) throw new InvalidParameterException();
             var txAccountList = new List<KeyValuePair<Hash, Hash>>();
             
             int conflictTxCount = (int) (conflictRate * txCount);
-            var conflictKeyPair = keyDictIter.Next();
+            var conflictKeyPair = conflictKeyIter.Next();
             var conflictAddr = new Hash(conflictKeyPair.Key);
 
             
@@ -55,26 +69,17 @@ namespace AElf.Benchmark
 
             return txAccountList;
         }
-        
-        public List<ITransaction> GetTxsWithOneConflictGroup(Hash contractAddr, int txNumber, double conflictRate)
-        {
-            var keyDictIter = KeyDict.Iterator();
-            
-            var addrPairs = GenerateTransferAddressPair(txNumber, conflictRate, ref keyDictIter);
-            var txList = GenerateTransferTransactions(contractAddr, addrPairs);
-
-            return txList;
-        }
 
         public List<ITransaction> GetMultipleGroupTx(int txNumber, int groupCount, Hash contractAddr)
         {
             if(txNumber > _totalNumber)  throw new InvalidParameterException();
             int txNumPerGroup = txNumber / groupCount;
             var keyDictIter = KeyDict.Iterator();
+            var conflictKeyIter = Target.Iterator();
             List<ITransaction> txList = new List<ITransaction>();
             for (int i = 0; i < groupCount; i++)
             {
-                var addrPair = GenerateTransferAddressPair(txNumPerGroup, 1, ref keyDictIter);
+                var addrPair = GenerateTransferAddressPair(txNumPerGroup, 1, ref keyDictIter, ref conflictKeyIter);
                 var groupTxList = GenerateTransferTransactions(contractAddr, addrPair);
                 txList.AddRange(groupTxList);
             }

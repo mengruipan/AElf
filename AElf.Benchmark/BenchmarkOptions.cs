@@ -32,6 +32,9 @@ namespace AElf.Benchmark
         [Option(Default = new []{1, 8}, HelpText = "lower bound and upper bound of the testing group in evenGroup benchmarking")]
         public IEnumerable<int> GroupRange { get; set; }
         
+        [Option('s', Default = 1, HelpText = "the interval of group count between each run")]
+        public int SkipInterval { get; set; }
+        
         [Option(Default = 10, HelpText = "how many time to repeat the benchmark to get more stable result")]
         public int RepeatTime { get; set; }
         

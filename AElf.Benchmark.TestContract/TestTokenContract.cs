@@ -35,8 +35,6 @@ namespace AElf.Benchmark.TestContract
         [SmartContractFunction("${this}.Transfer", new string[]{}, new []{"${this}.Balances"})]
         public bool Transfer(Hash from, Hash to, ulong qty)
         {
-            //Console.WriteLine("Transfer " + from.Value.ToBase64() + " , " + to.Value.ToBase64());
-            
             var fromBal = Balances.GetValue(from);
             //Console.WriteLine("from pass");
             var toBal = Balances.GetValue(to);
@@ -51,8 +49,8 @@ namespace AElf.Benchmark.TestContract
             Balances.SetValue(to, newToBal);
             //Console.WriteLine("set to pass");
 
-            //Console.WriteLine("After transfer: from- " + from.Value.ToBase64() + " (" + newFromBal +") to- " 
-            //+ to.Value.ToBase64() + "(" + newToBal + ")");
+            Console.WriteLine("After transfer: from- " + from.Value.ToBase64() + " (" + newFromBal +") to- " 
+            + to.Value.ToBase64() + "(" + newToBal + ")");
             return true;
         }
 
