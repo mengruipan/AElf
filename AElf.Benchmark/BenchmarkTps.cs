@@ -115,6 +115,7 @@ namespace AElf.Benchmark
             {
                 var res = await MultipleGroupBenchmark(_options.TxNumber, currentGroupCount);
                 resDict.Add(res.Key, res.Value);
+                Thread.Sleep(3000);
             }
 
             _logger.Info("Benchmark report \n \t Configuration: \n" + 
@@ -234,7 +235,7 @@ namespace AElf.Benchmark
             {
                 var txnBalInit = new Transaction
                 {
-                    From = Hash.Zero.ToAccount(),
+                    From = addr,
                     To = contractAddr,
                     IncrementId = NewIncrementId(),
                     MethodName = "InitBalance",

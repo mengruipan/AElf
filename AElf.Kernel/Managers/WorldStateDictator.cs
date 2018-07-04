@@ -1,6 +1,7 @@
 ﻿﻿﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+  using System.Diagnostics;
+  using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -137,6 +138,7 @@ namespace AElf.Kernel.Managers
         /// <returns></returns>
         public async Task SetWorldStateAsync(Hash preBlockHash)
         {
+            
             await Check();
             
             var changes = await GetChangesDictionaryAsync();
@@ -154,6 +156,7 @@ namespace AElf.Kernel.Managers
             
             //Refresh PreBlockHash after setting WorldState.
             PreBlockHash = preBlockHash;
+            
         }
         #endregion
 
@@ -308,6 +311,8 @@ namespace AElf.Kernel.Managers
 
         public async Task<Change> ApplyStateValueChangeAsync(StateValueChange stateValueChange, Hash chainId)
         {
+            //Stopwatch sw = new Stopwatch();
+            //sw.Start();
             // The code chunk is copied from DataProvider
 
             Hash prevBlockHash = await _dataStore.GetDataAsync(Path.CalculatePointerForLastBlockHash(chainId));
@@ -339,6 +344,8 @@ namespace AElf.Kernel.Managers
 
             await InsertChangeAsync(stateValueChange.Path, change);
             await SetDataAsync(pointerHashAfter, stateValueChange.AfterValue.ToByteArray());
+            //sw.Stop();
+            //Console.WriteLine("SetWorldStateAsync Time:{0}",sw.ElapsedTicks);
             return change;
         }
 

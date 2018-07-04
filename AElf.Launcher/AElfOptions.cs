@@ -99,6 +99,9 @@ namespace AElf.Launcher
         
         [Option("actor.port", HelpText = "The port of actor.")]
         public int? ActorPort { get; set; }
+        
+        [Option("actor.isseed", HelpText = "Actor is cluster or not.")]
+        public bool? ActorIsSeed { get; set; }
 
         #endregion
 

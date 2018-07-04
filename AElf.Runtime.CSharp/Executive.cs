@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -121,6 +122,8 @@ namespace AElf.Runtime.CSharp
 
         public async Task Apply(bool autoCommit)
         {
+//            Stopwatch sw = new Stopwatch();
+//            sw.Start();
             var s = _currentTransactionContext.Trace.StartTime = DateTime.UtcNow;
             var methodName = _currentTransactionContext.Transaction.MethodName;
 
@@ -191,6 +194,9 @@ namespace AElf.Runtime.CSharp
 
             var e = _currentTransactionContext.Trace.EndTime = DateTime.UtcNow;
             _currentTransactionContext.Trace.Elapsed = (e - s).Ticks;
+//            sw.Stop();
+//            Console.WriteLine("RunJob Apply" + sw.ElapsedTicks);
+
         }
 
         #region Cached handlers for this contract

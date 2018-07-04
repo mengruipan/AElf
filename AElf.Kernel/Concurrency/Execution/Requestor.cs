@@ -69,15 +69,19 @@ namespace AElf.Kernel.Concurrency.Execution
                         throw new TaskNotCompletedProperlyException("TransactionTrace is received after the task has completed.");
                     }
 
-                    traces.Add(msg.TransactionTrace);
-//                    _requestIdToPendingTransactionIds[msg.RequestId].Remove(msg.TransactionTrace.TransactionId);
-                    if (traces.Count == _requesteIdTransactionCounts[msg.RequestId])
+                    foreach (var trs in msg.TransactionTraces)
                     {
-                        _requestIdToTaskCompleteSource[msg.RequestId].TrySetResult(traces);
-                        _requesteIdTransactionCounts.Remove(msg.RequestId);
-                        _requestIdToTaskCompleteSource.Remove(msg.RequestId);
-                        _requestIdToTraces.Remove(msg.RequestId);
+                        traces.Add(trs);
+//                    _requestIdToPendingTransactionIds[msg.RequestId].Remove(msg.TransactionTrace.TransactionId);
+                        if (traces.Count == _requesteIdTransactionCounts[msg.RequestId])
+                        {
+                            _requestIdToTaskCompleteSource[msg.RequestId].TrySetResult(traces);
+                            _requesteIdTransactionCounts.Remove(msg.RequestId);
+                            _requestIdToTaskCompleteSource.Remove(msg.RequestId);
+                            _requestIdToTraces.Remove(msg.RequestId);
+                        }
                     }
+
 
                     break;
                 case JobExecutionStatus status:

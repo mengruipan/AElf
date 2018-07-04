@@ -37,6 +37,8 @@ namespace AElf.Kernel.Concurrency
                 WorldStateDictator = worldStateDictator,
                 AccountContextService = accountContextService,
             };
+
+            _servicePack.WorldStateDictator.DeleteChangeBeforesImmidiately = true;
             _isInit = false;
         }
 
@@ -59,6 +61,12 @@ namespace AElf.Kernel.Concurrency
             _actorSystem = ActorSystem.Create(SystemName, config);
             var worker = _actorSystem.ActorOf(Props.Create<Worker>(), "worker");
             worker.Tell(new LocalSerivcePack(_servicePack));
+//            var worker1 = _actorSystem.ActorOf(Props.Create<Worker>(), "worker1");
+//            worker1.Tell(new LocalSerivcePack(_servicePack));
+//            var worker2 = _actorSystem.ActorOf(Props.Create<Worker>(), "worker2");
+//            worker2.Tell(new LocalSerivcePack(_servicePack));
+//            var worker3 = _actorSystem.ActorOf(Props.Create<Worker>(), "worker3");
+//            worker3.Tell(new LocalSerivcePack(_servicePack));
         }
 
         public void InitActorSystem()
@@ -68,7 +76,7 @@ namespace AElf.Kernel.Concurrency
                 var config = InitActorConfig(ActorHocon.ActorClusterHocon);
                 _actorSystem = ActorSystem.Create(SystemName, config);
                 //Todo waiting for join cluster. we should get the status here.
-                Thread.Sleep(2000);
+                Thread.Sleep(10000);
                 _router = _actorSystem.ActorOf(Props.Empty.WithRouter(FromConfig.Instance), "router");
             }
             else

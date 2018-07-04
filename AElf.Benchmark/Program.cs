@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AElf.Database;
 using AElf.Database.Config;
@@ -124,7 +125,11 @@ namespace AElf.Benchmark
                 var benchmarkTps = scope.Resolve<Benchmarks>();
                 if (opts.SupportedBenchmark == "evenGroup")
                 {
-                    await benchmarkTps.BenchmarkEvenGroup();
+//                    while (true)
+//                    {
+                        await benchmarkTps.BenchmarkEvenGroup();
+//                        Thread.Sleep(8000);
+//                    }
                 }
 
                 Console.WriteLine("\n\nPress any key to continue ");

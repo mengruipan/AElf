@@ -19,10 +19,13 @@ namespace AElf.Kernel.Concurrency.Execution.Config
 
         public ActorConfig()
         {
-            IsCluster = false;
+            IsCluster = true;
             HostName = "127.0.0.1";
-            Port = 32550;
-            WorkerCount = 8;
+            Port = 0;
+            WorkerCount = 1;
+            Seeds = new List<SeedNode>();
+            Seeds.Add(new SeedNode {HostName = "127.0.0.1", Port = 32551});
+//            Seeds.Add(new SeedNode {HostName = "192.168.197.29", Port = 32551});
         }
     }
 

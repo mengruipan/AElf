@@ -36,7 +36,7 @@ namespace AElf.Kernel.Concurrency
                 var token = cts.Token;
 
 #if PARALLEL
-                var grouped = _grouper.Process(chainId, transactions, out var failedTxs);
+                var grouped = _grouper.ProcessWithCoreCount(2,chainId, transactions, out var failedTxs);
 #else
                 var grouped = new List<List<ITransaction>>() {transactions};
                 Dictionary<ITransaction, Exception> failedTxs = new Dictionary<ITransaction, Exception>();
