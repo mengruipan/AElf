@@ -85,6 +85,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Contracts.Genesis.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Contracts.Token.Tests", "AElf.Contracts.Token.Tests\AElf.Contracts.Token.Tests.csproj", "{C5D82773-C1DF-4CB8-BF0A-350251B6E38E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AElf.Network.V2", "AElf.Network.V2\AElf.Network.V2.csproj", "{64993DB4-47CB-4B3A-B5EC-8605A9C3DD2D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -251,6 +253,10 @@ Global
 		{C5D82773-C1DF-4CB8-BF0A-350251B6E38E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5D82773-C1DF-4CB8-BF0A-350251B6E38E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5D82773-C1DF-4CB8-BF0A-350251B6E38E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64993DB4-47CB-4B3A-B5EC-8605A9C3DD2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64993DB4-47CB-4B3A-B5EC-8605A9C3DD2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64993DB4-47CB-4B3A-B5EC-8605A9C3DD2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64993DB4-47CB-4B3A-B5EC-8605A9C3DD2D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
