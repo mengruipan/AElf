@@ -6,13 +6,12 @@ namespace AElf.Network.V2.DHT.Distance
     public class XorMetric
     {
         /// <summary>
-        /// This method is responsible for computing the
-        /// bitwise XOR of its operands.
+        /// Computes the bitwise XOR of its inputs.
         /// </summary>
         /// <param name="addr1Bin"></param>
         /// <param name="addr2Bin"></param>
-        /// <returns>Binary string-formatted XOR</returns>
-        public static string Calculate(string addr1Bin, string addr2Bin)
+        /// <returns>Binary string-formatted XOR result</returns>
+        public static string Compute(string addr1Bin, string addr2Bin)
         {   
             Tuple<short[], short[]> addrArrays = Normalise(addr1Bin, addr2Bin);
             
@@ -32,9 +31,8 @@ namespace AElf.Network.V2.DHT.Distance
         }
 
         /// <summary>
-        /// This method is responsible for converting the two
-        /// binary string-formatted addresses to arrays and
-        /// ensuring they are the same length (number of bits).
+        /// Converts the two binary string-formatted addresses to arrays
+        /// and ensures they are the same length (number of bits).
         /// </summary>
         /// <param name="addr1Bin"></param>
         /// <param name="addr2Bin"></param>
@@ -62,8 +60,8 @@ namespace AElf.Network.V2.DHT.Distance
         }
 
         /// <summary>
-        /// This method is responsible for prepending zeros
-        /// to the input array.
+        /// Prepends zeros the required number of zeros to the
+        /// input array.
         /// </summary>
         /// <param name="input"></param>
         /// <param name="zeros"></param>
