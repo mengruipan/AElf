@@ -8,7 +8,11 @@ namespace AElf.Network.Sim
     {
         static void Main(string[] args)
         {
-            
+            string addr1 = "a4";
+            string addr2 = "9c";
+            Console.WriteLine("Example address #1 = " + addr1);
+            Console.WriteLine("Example address #2 = " + addr2);
+            Console.WriteLine("XOR distance = " + Distance.Calculate(addr1, addr2));
         }
     }
 }
