@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AElf.Network.V2\AElf.Network.V2.csproj">
+      <Project>{64993DB4-47CB-4B3A-B5EC-8605A9C3DD2D}</Project>
+      <Name>AElf.Network.V2</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>
