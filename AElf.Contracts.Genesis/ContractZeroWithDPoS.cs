@@ -51,7 +51,7 @@ namespace AElf.Contracts.Genesis
         {
             // Should be setted before 
             var blockProducer = await _blockProducer.GetAsync();
-
+            Console.WriteLine($"------------- GetBlockProducers : {blockProducer.Nodes}  {blockProducer}----------------");
             if (blockProducer.Nodes.Count < 1)
             {
                 throw new ConfigurationErrorsException("No block producer.");
@@ -69,7 +69,7 @@ namespace AElf.Contracts.Genesis
             }
 
             await _blockProducer.SetAsync(blockProducers);
-
+            Console.WriteLine($"------------- SetBlockProducers : {blockProducers.Nodes}  {blockProducers}----------------");
             return blockProducers;
         }
         
@@ -82,11 +82,13 @@ namespace AElf.Contracts.Genesis
             var dict = new Dictionary<string, int>();
 
             await _blockProducer.SetAsync(blockProducers);
+            Console.WriteLine($"------------- GenerateInfoForFirstTwoRounds : {blockProducers.Nodes}  {blockProducers}----------------");
 
             // First round
             foreach (var node in blockProducers.Nodes)
             {
                 dict.Add(node, node[0]);
+                Console.WriteLine($"--------First round: ----- GenerateInfoForFirstTwoRounds : node = {node}, node[0] = {node[0]} ----------------");
             }
 
             var sortedMiningNodes =
@@ -97,7 +99,7 @@ namespace AElf.Contracts.Genesis
             var enumerable = sortedMiningNodes.ToList();
             
             var infosOfRound1 = new RoundInfo();
-
+            Console.WriteLine($"--------First round: ----- blockProducers.Nodes.Count = {blockProducers.Nodes.Count}, selected = {blockProducers.Nodes.Count / 2} ----------------");
             var selected = blockProducers.Nodes.Count / 2;
             for (var i = 0; i < enumerable.Count; i++)
             {
@@ -106,14 +108,20 @@ namespace AElf.Contracts.Genesis
                 if (i == selected)
                 {
                     bpInfo.IsEBP = true;
-
+                    Console.WriteLine($"--------infosOfRound1 ---- enumerable: ----- EBP : {enumerable[i]} ----------------");
                 }
 
                 bpInfo.Order = i + 1;
                 bpInfo.Signature = Hash.Generate();
                 bpInfo.TimeSlot = GetTimestampOfUtcNow(i * MiningTime + WaitFirstRoundTime);
 
+                Console.WriteLine($"-----------infosOfRound1 ----bpInfo.TimeSlot---{bpInfo.TimeSlot}-----------------");
+                Console.WriteLine($"-----------infosOfRound1 ----bpInfo.Order---{bpInfo.Order}-----i = {i}------------");
+                Console.WriteLine($"-----------infosOfRound1 ----bpInfo.TimeSlot---{bpInfo.TimeSlot}, MiningTime = {MiningTime}, WaitFirstRoundTime = {WaitFirstRoundTime}---------");
+
                 infosOfRound1.Info.Add(enumerable[i], bpInfo);
+                Console.WriteLine($"--------infosOfRound1 ---- enumerable: ----- infosOfRound1 : key: {infosOfRound1.Info.Keys} --- value: {infosOfRound1.Info.Values}----------------");
+                Console.WriteLine($"--------infosOfRound1 info---------{infosOfRound1}---------------");
             }
 
             // Second round
@@ -122,6 +130,7 @@ namespace AElf.Contracts.Genesis
             foreach (var node in blockProducers.Nodes)
             {
                 dict.Add(node, node[0]);
+                Console.WriteLine($"--------Second round: ----- GenerateInfoForFirstTwoRounds : node = {node}, node[0] = {node[0]} ----------------");
             }
             
             sortedMiningNodes =
@@ -134,8 +143,12 @@ namespace AElf.Contracts.Genesis
             var infosOfRound2 = new RoundInfo();
 
             var addition = enumerable.Count * MiningTime + MiningTime;
+            Console.WriteLine($"--------Second round: ----- GenerateInfoForFirstTwoRounds : enumerable.Count = {enumerable.Count}, MiningTime = {MiningTime} ----------------");
+            Console.WriteLine($"--------Second round: ----- GenerateInfoForFirstTwoRounds : addition = enumerable.Count * MiningTime + MiningTime = {addition = enumerable.Count * MiningTime + MiningTime} ----------------");
 
             selected = blockProducers.Nodes.Count / 2;
+            Console.WriteLine($"--------First round: ----- blockProducers.Nodes.Count = {blockProducers.Nodes.Count}, selected = {blockProducers.Nodes.Count / 2} ----------------");
+
             for (var i = 0; i < enumerable.Count; i++)
             {
                 var bpInfo = new BPInfo {IsEBP = false};
@@ -143,10 +156,15 @@ namespace AElf.Contracts.Genesis
                 if (i == selected)
                 {
                     bpInfo.IsEBP = true;
+                    Console.WriteLine($"--------infosOfRound1 ---- enumerable: ----- EBP : {enumerable[i]} ----------------");
                 }
 
                 bpInfo.TimeSlot = GetTimestampOfUtcNow(i * MiningTime + addition + WaitFirstRoundTime);
                 bpInfo.Order = i + 1;
+
+                Console.WriteLine($"-----------infosOfRound2 ----bpInfo.TimeSlot---{bpInfo.TimeSlot}-----------------");
+                Console.WriteLine($"-----------infosOfRound2 ----bpInfo.Order---{bpInfo.Order}-----i = {i}------------");
+                Console.WriteLine($"-----------infosOfRound2 ----bpInfo.TimeSlot---{bpInfo.TimeSlot}, MiningTime = {MiningTime}, WaitFirstRoundTime = {WaitFirstRoundTime}---------");
 
                 infosOfRound2.Info.Add(enumerable[i], bpInfo);
             }
@@ -161,6 +179,7 @@ namespace AElf.Contracts.Genesis
 
         public async Task SyncStateOfFirstTwoRounds(DPoSInfo dPoSInfo, BlockProducer blockProducer)
         {
+            Console.WriteLine("---------------SyncStateOfFirstTwoRounds----------------");
             await _blockProducer.SetAsync(blockProducer);
             
             var firstRound = new UInt64Value {Value = 1};
@@ -204,6 +223,7 @@ namespace AElf.Contracts.Genesis
 
             foreach (var node in blockProducer.Nodes)
             {
+                Console.WriteLine($"---------GenerateNextRoundOrder-----------node:{node}------");
                 var s = (await GetBlockProducerInfoOfCurrentRound(node)).Signature;
                 if (s == null)
                 {
@@ -216,12 +236,20 @@ namespace AElf.Contracts.Genesis
             {
                 var sigNum = BitConverter.ToUInt64(
                     BitConverter.IsLittleEndian ? sig.Value.Reverse().ToArray() : sig.Value.ToArray(), 0);
+
+                Console.WriteLine($"---------signatureDict.Keys-----------sigNum:{sigNum}------blockProducerCount:{blockProducerCount}---------------");
+
                 var order = Math.Abs(GetModulus(sigNum, blockProducerCount));
-                
+                Console.WriteLine($"---------order = GetModulus(sigNum, blockProducerCount) = {order}-----------sigNum:{sigNum}------blockProducerCount:{blockProducerCount}---------------");
+
                 if (orderDict.ContainsKey(order))
                 {
+                    Console.WriteLine($"---------orderDict.ContainsKey(order) => {order}--------------------------");
+
                     for (var i = 0; i < blockProducerCount; i++)
                     {
+                        Console.WriteLine($"---------orderDict.ContainsKey(order) =>  i = {i}--------------------------");
+
                         if (!orderDict.ContainsKey(i))
                         {
                             order = i;
@@ -239,7 +267,8 @@ namespace AElf.Contracts.Genesis
                     TimeSlot = GetTimestampOfUtcNow(i * MiningTime + MiningTime),
                     Order = i + 1
                 };
-
+                Console.WriteLine($"---------bpInfoNew => order: {bpInfoNew.Order}, TimeSlot :{bpInfoNew.TimeSlot} --------------------------");
+                Console.WriteLine($"---------bpInfoNew => i: {i}, MiningTime :{MiningTime} --------------------------");
                 infosOfNextRound.Info[orderDict[i]] = bpInfoNew;
             }
 
@@ -248,8 +277,11 @@ namespace AElf.Contracts.Genesis
         
         public async Task<StringValue> SetNextExtraBlockProducer()
         {
+            Console.WriteLine($"---------SetNextExtraBlockProducer--------RoundsCount:{RoundsCount}---------");
             var firstPlace = await _firstPlaceMap.GetValueAsync(RoundsCount);
+            Console.WriteLine($"---------SetNextExtraBlockProducer-------firstPlace:{firstPlace.Value}----------");
             var firstPlaceInfo = await GetBlockProducerInfoOfCurrentRound(firstPlace.Value);
+            Console.WriteLine($"---------SetNextExtraBlockProducer-------firstPlaceInfo:{firstPlaceInfo.Signature}-------------");
             var sig = firstPlaceInfo.Signature;
             if (sig == null)
             {
@@ -258,9 +290,15 @@ namespace AElf.Contracts.Genesis
             
             var sigNum = BitConverter.ToUInt64(
                 BitConverter.IsLittleEndian ? sig.Value.Reverse().ToArray() : sig.Value.ToArray(), 0);
+            Console.WriteLine($"---------SetNextExtraBlockProducer-------sigNum:{sigNum}----------");
+            
             var blockProducer = await GetBlockProducers();
             var blockProducerCount = blockProducer.Nodes.Count;
             var order = GetModulus(sigNum, blockProducerCount);
+
+            Console.WriteLine($"---------SetNextExtraBlockProducer-------blockProducerCount:{blockProducerCount}----------");
+            Console.WriteLine($"---------SetNextExtraBlockProducer-------order:{order}----------");
+            Console.WriteLine($"---------SetNextExtraBlockProducer-------nextEBP:{blockProducer.Nodes[order]}----------");
 
             // ReSharper disable once InconsistentNaming
             var nextEBP = blockProducer.Nodes[order];
@@ -270,12 +308,16 @@ namespace AElf.Contracts.Genesis
         
         public async Task<UInt64Value> GetRoundsCount()
         {
+            Console.WriteLine($"---------GetRoundsCount-------GetRoundsCount:{await _roundsCount.GetAsync()}----------");
             return new UInt64Value {Value = await _roundsCount.GetAsync()};
         }
 
         // ReSharper disable once InconsistentNaming
         public async Task SyncStateOfNextRound(RoundInfo suppliedPreviousRoundInfo, RoundInfo nextRoundInfo, StringValue nextEBP)
         {
+            Console.WriteLine($"-------------SyncStateOfNextRound-----suppliedPreviousRoundInfo:{suppliedPreviousRoundInfo.Info}-----");
+            Console.WriteLine($"-------------SyncStateOfNextRound-----nextRoundInfo:{nextRoundInfo.Info}-----");
+
             if (!await Authentication(nameof(SyncStateOfNextRound)))
             {
                 return;
@@ -747,6 +789,7 @@ namespace AElf.Contracts.Genesis
         private UInt64Value RoundsCountAddOne(UInt64Value currentCount)
         {
             var current = currentCount.Value;
+            Console.WriteLine($"----------------RoundsCountAddOne------------ currentCount: {currentCount.Value}-------------");
             current++;
             return new UInt64Value {Value = current};
         }
@@ -755,19 +798,20 @@ namespace AElf.Contracts.Genesis
         private UInt64Value RoundsCountMinusOne(UInt64Value currentCount)
         {
             var current = currentCount.Value;
+            Console.WriteLine($"----------------RoundsCountMinusOne------------ currentCount: {currentCount.Value}-------------");
             current--;
             return new UInt64Value {Value = current};
         }
 
         private async Task<BPInfo> GetBlockProducerInfoOfSpecificRound(string accountAddress, UInt64Value roundsCount)
         {
-            //ConsoleWriteLine($"Try to get bp {accountAddress}'s info of {roundsCount.Value} round");
+            ConsoleWriteLine($"Try to get bp {accountAddress}'s info of {roundsCount.Value} round");
             return (await _dPoSInfoMap.GetValueAsync(roundsCount)).Info[accountAddress];
         }
         
         private async Task<BPInfo> GetBlockProducerInfoOfCurrentRound(string accountAddress)
         {
-            //ConsoleWriteLine($"Try to get bp {accountAddress}'s info of {RoundsCount.Value} round");
+            ConsoleWriteLine($"-----GetBlockProducerInfoOfCurrentRound---------Try to get bp {accountAddress}'s info of {RoundsCount.Value} round---------------");
             return (await _dPoSInfoMap.GetValueAsync(RoundsCount)).Info[accountAddress];
         }
         
@@ -796,7 +840,10 @@ namespace AElf.Contracts.Genesis
         {
             var fromAccount = ConvertToNormalHexString(Api.GetTransaction().From.Value.ToByteArray().ToHex());
             var result = (await GetBlockProducers()).Nodes.Contains(fromAccount);
-            //ConsoleWriteLine($"Checked privilege to call consensus method {methodName}: {result}");
+
+            Console.WriteLine($"-----------Authentication------------{Api.GetTransaction().From.Value}-------------------");
+
+            ConsoleWriteLine($"Checked privilege to call consensus method {methodName}: {result}");
             return result;
         }
 
