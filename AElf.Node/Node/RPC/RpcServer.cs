@@ -24,7 +24,7 @@ namespace AElf.Kernel.Node.RPC
     [LoggerName("RPC")]
     public class RpcServer : IRpcServer
     {
-        //private const string GetTxMethodName = "get_tx";
+        private const string GetTxMethodName = "get_tx_info";
         //private const string InsertTxMethodName = "insert_tx";
         private const string BroadcastTxMethodName = "broadcast_tx";
         //private const string GetPeersMethodName = "get_peers";
@@ -43,7 +43,7 @@ namespace AElf.Kernel.Node.RPC
         /// </summary>
         private readonly List<string> _rpcCommands = new List<string>()
         {
-            //GetTxMethodName,
+            GetTxMethodName,
             //InsertTxMethodName,
             BroadcastTxMethodName,
             //GetPeersMethodName,
@@ -199,9 +199,9 @@ namespace AElf.Kernel.Node.RPC
                 JObject responseData = null;
                 switch (methodName)
                 {
-                    /*case GetTxMethodName:
+                    case GetTxMethodName:
                         responseData = await ProcessGetTx(reqParams);
-                        break;*/
+                        break;
                     /*case InsertTxMethodName:
                         responseData = await ProcessInsertTx(reqParams);
                         break;*/
@@ -461,8 +461,23 @@ namespace AElf.Kernel.Node.RPC
         /// <returns></returns>
         private async Task<JObject> ProcessGetTx(JObject reqParams)
         {
-            byte[] txid = reqParams["txid"].ToObject<byte[]>();
-            ITransaction tx = await _node.GetTransaction(txid);
+           // byte[] txid = reqParams["txid"].ToObject<byte[]>();
+            string adr = reqParams["txid"].ToString();
+            Hash txHash;
+            
+            try
+            {
+                txHash = ByteArrayHelpers.FromHexString(adr);
+            }
+            catch (Exception e)
+            {
+                return JObject.FromObject(new JObject
+                {
+                    ["error"] = "Invalid Address Format"
+                });
+            }
+            
+            ITransaction tx = await _node.GetTransaction(txHash);
 
             var txInfo = tx == null ? new JObject {["tx"] = "Not Found"} : tx.GetTransactionInfo();
 
